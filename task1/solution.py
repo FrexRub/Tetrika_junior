@@ -5,7 +5,6 @@ from typing import Callable
 def strict(func: Callable):
     @wraps(func)
     def wrapped(*args, **kwargs):
-        print(func.__annotations__)
         annotations = tuple(func.__annotations__.values())
         if args:
             for i in range(len(args)):
