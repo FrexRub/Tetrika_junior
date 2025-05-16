@@ -23,6 +23,16 @@ def strict(func: Callable):
 def sum_two(a: int, b: int) -> int:
     return a + b
 
+@strict
+def sum_two_float(a: float, b: float) -> float:
+    return a + b
 
-print(sum_two(1, 2))
-print(sum_two(1, 2.4))
+
+@strict
+def concat_strings(s1: str, s2: str) -> str:
+    return s1 + s2
+
+
+@strict
+def check_bool(a: bool, b: bool) -> bool:
+    return a is b
