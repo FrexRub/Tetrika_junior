@@ -38,18 +38,18 @@ def get_data_animals(url: str) -> tuple[list[str], list[str], str]:
     return data_animals, list_letters, url_next_page[0]
 
 
-def get_counts_letters(char: str, list_str: list[str]) -> tuple[int, int]:
+def get_counts_letters(char: str, list_str: list[str]) -> int:
     """
     Парсинг данных с сайта
     :param char: str
         начальная буква наименования животного
     :param list_str: list[str]
         список животных с разными начальными буквами
-    :return: tuple[int, int]
-        количество животных с указанной буквой, количество остальных
+    :return:  int
+        количество животных с указанной начальной буквой
     """
     new_list: list[str] = [item for item in list_str if item.startswith(char)]
-    return len(new_list), len(list_str) - len(new_list)
+    return len(new_list)
 
 
 if __name__ == "__main__":
@@ -60,22 +60,28 @@ if __name__ == "__main__":
     current_letters: str = letters[-1]
     dict_letters[current_letters] = len(list_animals)
 
+    # пока на странице не появится латинская А
     while "A" not in letters:
         list_animals, letters, url_next = get_data_animals(URL_SITE + url_next)
         if letters[-1] != current_letters:
-            count_current_letters, count_next_letters = get_counts_letters(
-                current_letters, list_animals
-            )
-
+            count_current_letters = get_counts_letters(current_letters, list_animals)
             dict_letters[current_letters] += count_current_letters
             print(f"Проведен расчет для животных на букву: {current_letters}")
+            # если на странице несколько букв
+            i_chr = -1
+            while current_letters != letters[i_chr]:
+                i_chr -= 1
+
+            while i_chr != -1:
+                i_chr += 1
+                count_current_letters = get_counts_letters(letters[i_chr], list_animals)
+                dict_letters[letters[i_chr]] = count_current_letters
+
             current_letters = letters[-1]
-            dict_letters[current_letters] = count_next_letters
         else:
             dict_letters[current_letters] += len(list_animals)
 
     del dict_letters["A"]
-    print(dict_letters)
 
     with open("beasts.csv", "w", encoding="utf-8") as file:
         for letter, number in dict_letters.items():
