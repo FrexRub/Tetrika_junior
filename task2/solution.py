@@ -1,9 +1,17 @@
 import requests
+import logging
 
 from bs4 import BeautifulSoup
 
 URL_SITE = "https://ru.wikipedia.org"
 URL_START = "/wiki/Категория:Животные_по_алфавиту"
+
+logging.basicConfig(
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+    format="[%(asctime)s.%(msecs)03d] %(module)10s:%(lineno)-3d %(levelname)-7s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def get_data_animals(url: str) -> tuple[list[str], list[str], str]:
@@ -52,8 +60,22 @@ def get_counts_letters(char: str, list_str: list[str]) -> int:
     return len(new_list)
 
 
-if __name__ == "__main__":
+def write_data_in_file(dict_data: dict[str, int]) -> None:
+    """
+    Запись данных в файл
+    :param dict_data: dict[str, int]
+        данные о количестве букв в названиях животных
+    :return:  None
+    """
+    logger.info("Начало записи файла beasts.csv")
+    with open("beasts.csv", "w", encoding="utf-8") as file:
+        for letter, number in dict_data.items():
+            file.write(f"{letter},{number}\n")
 
+    logger.info("Завершение записи файла beasts.csv")
+
+
+def main() -> None:
     dict_letters: dict[str, int] = dict()
 
     list_animals, letters, url_next = get_data_animals(URL_SITE + URL_START)
@@ -66,7 +88,7 @@ if __name__ == "__main__":
         if letters[-1] != current_letters:
             count_current_letters = get_counts_letters(current_letters, list_animals)
             dict_letters[current_letters] += count_current_letters
-            print(f"Проведен расчет для животных на букву: {current_letters}")
+            logger.info(f"Проведен расчет для животных на букву: {current_letters}")
             # если на странице несколько букв
             i_chr = -1
             while current_letters != letters[i_chr]:
@@ -83,6 +105,8 @@ if __name__ == "__main__":
 
     del dict_letters["A"]
 
-    with open("beasts.csv", "w", encoding="utf-8") as file:
-        for letter, number in dict_letters.items():
-            file.write(f"{letter},{number}\n")
+    write_data_in_file(dict_letters)
+
+
+if __name__ == "__main__":
+    main()
