@@ -1,10 +1,14 @@
 from functools import wraps
-from typing import Callable
+from typing import Callable, TypeVar, ParamSpec
 
 
-def strict(func: Callable):
+P = ParamSpec("P")
+T = TypeVar("T")
+
+
+def strict(func: Callable[P, T]) -> Callable[P, T]:
     @wraps(func)
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         annotations = tuple(func.__annotations__.values())
         if args:
             for i in range(len(args)):
@@ -22,6 +26,7 @@ def strict(func: Callable):
 @strict
 def sum_two(a: int, b: int) -> int:
     return a + b
+
 
 @strict
 def sum_two_float(a: float, b: float) -> float:

@@ -10,7 +10,11 @@ requires-python = ">=3.12"
 dependencies = [
     "pytest (>=8.3.5,<9.0.0)",
     "beautifulsoup4 (>=4.13.4,<5.0.0)",
-    "requests (>=2.32.3,<3.0.0)"
+    "requests (>=2.32.3,<3.0.0)",
+    "flake8 (>=7.2.0,<8.0.0)",
+    "types-requests (>=2.32.0.20250515,<3.0.0.0)",
+    "types-beautifulsoup4 (>=4.12.0.20250516,<5.0.0.0)",
+    "pytest-cov (>=6.1.1,<7.0.0)"
 ]
 
 
@@ -20,4 +24,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+mypy = "^1.15.0"
 

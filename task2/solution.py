@@ -1,7 +1,8 @@
 import logging
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
+from bs4.element import ResultSet, PageElement, NavigableString
 
 URL_SITE = "https://ru.wikipedia.org"
 URL_START = "/wiki/Категория:Животные_по_алфавиту"
@@ -22,25 +23,34 @@ def get_data_animals(url: str) -> tuple[list[str], list[str], str]:
     :return: tuple[list[str], list[str], str]
         возвращает список наименований животных со страницы, список начальных букв, адрес следующей страницы
     """
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, "html.parser")
+    page: requests.Response = requests.get(url)
+    soup: BeautifulSoup = BeautifulSoup(page.text, "html.parser")
 
-    target_div = soup.find_all("div", id="mw-pages")
-    url_next_page = [
+    target_div: ResultSet[PageElement | Tag | NavigableString] = soup.find_all(
+        "div", id="mw-pages"
+    )
+
+    url_next_page: list[str] = [
         a["href"]
         for item in target_div
-        for a in item.find_all("a")
-        if a.text == "Следующая страница"
+        for a in item.find_all("a")  # type: ignore[union-attr]
+        if a.text == "Следующая страница"  # type: ignore[union-attr]
     ]
 
-    data_category_group = soup.find_all("div", class_="mw-category-group")
-    page_data = [
-        item.find_all("li") for item in data_category_group if item.find("div") is None
-    ]
-    data_animals = [li.find("a").text for li_list in page_data for li in li_list]
+    data_category_group: ResultSet[PageElement | Tag | NavigableString] = soup.find_all(
+        "div", class_="mw-category-group"
+    )
 
-    list_letters = [
-        letter.text for item in data_category_group for letter in item.find_all("h3")
+    page_data: list[ResultSet[Tag]] = [
+        item.find_all("li") for item in data_category_group if item.find("div") is None  # type: ignore[union-attr]
+    ]
+
+    data_animals: list[str] = [
+        li.find("a").text for li_list in page_data for li in li_list  # type: ignore[union-attr]
+    ]
+
+    list_letters: list[str] = [
+        letter.text for item in data_category_group for letter in item.find_all("h3")  # type: ignore[union-attr]
     ]
 
     return data_animals, list_letters, url_next_page[0]
